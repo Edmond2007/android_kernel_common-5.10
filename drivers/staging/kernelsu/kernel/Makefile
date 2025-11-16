@@ -28,32 +28,32 @@ MDIR := $(realpath $(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 $(info -- KDIR: $(KDIR))
 $(info -- MDIR: $(MDIR))
 
-# Check if this is a git repository
-# For in-tree build: check $(srctree)/$(src)/../.git
-# For out-of-tree build: check $(MDIR)/../.git
-ifeq ($(shell test -e $(srctree)/$(src)/../.git && echo "in-tree"),in-tree)
-# In-tree build (git submodule)
-$(shell cd $(srctree)/$(src); /usr/bin/env PATH="$$PATH":/usr/bin:/usr/local/bin [ -f ../.git/shallow ] && git fetch --unshallow)
-KSU_GIT_VERSION := $(shell cd $(srctree)/$(src); /usr/bin/env PATH="$$PATH":/usr/bin:/usr/local/bin git rev-list --count HEAD)
-KSU_GIT_VERSION_VALID := 1
-else ifeq ($(shell test -e $(MDIR)/../.git && echo "out-of-tree"),out-of-tree)
-# Out-of-tree build (standalone repository)
-$(shell cd $(MDIR); /usr/bin/env PATH="$$PATH":/usr/bin:/usr/local/bin [ -f ../.git/shallow ] && git fetch --unshallow)
-KSU_GIT_VERSION := $(shell cd $(MDIR); /usr/bin/env PATH="$$PATH":/usr/bin:/usr/local/bin git rev-list --count HEAD)
-KSU_GIT_VERSION_VALID := 1
+REPO_OWNER := 5ec1cff
+REPO_NAME := KernelSU
+REPO_BRANCH := main
+
+GIT_BIN := /usr/bin/env PATH="$$PATH":/usr/bin:/usr/local/bin git
+CURL_BIN := /usr/bin/env PATH="$$PATH":/usr/bin:/usr/local/bin curl
+
+KSU_GITHUB_VERSION := $(shell $(CURL_BIN) -sI "https://api.github.com/repos/$(REPO_OWNER)/$(REPO_NAME)/commits?sha=$(REPO_BRANCH)&per_page=1" | grep -i "link:" | sed -n 's/.*page=\([0-9]*\)>; rel="last".*/\1/p')
+
+ifeq ($(KSU_GITHUB_VERSION),)
+  ifeq ($(shell test -e $(srctree)/$(src)/../.git; echo $$?),0)
+    $(shell cd $(srctree)/$(src); [ -f ../.git/shallow ] && $(GIT_BIN) fetch --unshallow)
+    KSU_LOCAL_VERSION := $(shell cd $(srctree)/$(src); $(GIT_BIN) rev-list --count HEAD)
+    $(eval KSU_VERSION := $(shell expr 20000 + $(KSU_LOCAL_VERSION)))
+    $(info -- KernelSU version (local .git): $(KSU_VERSION))
+  else
+    $(eval KSU_VERSION := 2084)
+    $(warning -- Could not fetch version online or via local .git! Using fallback version: $(KSU_VERSION))
+  endif
+else
+  $(eval KSU_VERSION := $(shell expr 20000 + $(KSU_GITHUB_VERSION)))
+  $(info -- KernelSU version (GitHub): $(KSU_VERSION))
 endif
 
-# Calculate version if git version is available
-ifdef KSU_GIT_VERSION_VALID
-# ksu_version: major * 10000 + git version + 200 for historical reasons
-$(eval KSU_VERSION=$(shell expr 20000 + $(KSU_GIT_VERSION)))
 $(info -- KernelSU version: $(KSU_VERSION))
 ccflags-y += -DKSU_VERSION=$(KSU_VERSION)
-else
-# If there is no .git directory, use default version
-$(warning "KSU_GIT_VERSION not defined! It is better to make KernelSU a git repository!")
-ccflags-y += -DKSU_VERSION=16
-endif
 
 ifndef KSU_EXPECTED_SIZE
 KSU_EXPECTED_SIZE := 384
