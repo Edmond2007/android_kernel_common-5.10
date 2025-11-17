@@ -97,6 +97,7 @@ import me.weishu.kernelsu.R
 import me.weishu.kernelsu.ksuApp
 import me.weishu.kernelsu.ui.component.ConfirmResult
 import me.weishu.kernelsu.ui.component.DropdownImpl
+import me.weishu.kernelsu.ui.component.RebootListPopup
 import me.weishu.kernelsu.ui.component.SearchBox
 import me.weishu.kernelsu.ui.component.SearchPager
 import me.weishu.kernelsu.ui.component.rememberConfirmDialog
@@ -408,7 +409,7 @@ fun ModulePager(
                             }
                         }
                         IconButton(
-                            modifier = Modifier.padding(end = 16.dp),
+                            modifier = Modifier.padding(end = 8.dp),
                             onClick = { showTopPopup.value = true },
                             holdDownState = showTopPopup.value
                         ) {
@@ -418,6 +419,10 @@ fun ModulePager(
                                 contentDescription = stringResource(id = R.string.settings)
                             )
                         }
+                        RebootListPopup(
+                            modifier = Modifier.padding(end = 16.dp),
+                            alignment = PopupPositionProvider.Align.TopRight
+                        )
                     },
                     scrollBehavior = scrollBehavior
                 )
@@ -436,6 +441,9 @@ fun ModulePager(
                         viewModel.markNeedRefresh()
                     }
                 )
+                val uris = mutableListOf<Uri>()
+                val moduleNames = uris.mapIndexed { index, uri -> "\n${index + 1}. ${uri.getFileName(context)}" }.joinToString("")
+                val confirmContent = stringResource(R.string.module_install_prompt_with_name, moduleNames)
                 val selectZipLauncher = rememberLauncherForActivityResult(
                     contract = ActivityResultContracts.StartActivityForResult()
                 ) {
@@ -445,7 +453,6 @@ fun ModulePager(
                     val data = it.data ?: return@rememberLauncherForActivityResult
                     val clipData = data.clipData
 
-                    val uris = mutableListOf<Uri>()
                     if (clipData != null) {
                         for (i in 0 until clipData.itemCount) {
                             clipData.getItemAt(i)?.uri?.let { uris.add(it) }
@@ -460,9 +467,6 @@ fun ModulePager(
                         }
                     } else if (uris.size > 1) {
                         // multiple files selected
-                        val moduleNames =
-                            uris.mapIndexed { index, uri -> "\n${index + 1}. ${uri.getFileName(context)}" }.joinToString("")
-                        val confirmContent = context.getString(R.string.module_install_prompt_with_name, moduleNames)
                         zipUris = uris
                         confirmDialog.showConfirm(
                             title = confirmTitle,
@@ -860,15 +864,16 @@ fun ModuleItem(
                 Text(
                     text = "$moduleVersion: ${module.version}",
                     fontSize = 12.sp,
-                    modifier = Modifier.padding(top = 1.dp),
-                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.padding(top = 2.dp),
+                    fontWeight = FontWeight(550),
                     color = colorScheme.onSurfaceVariantSummary,
                     textDecoration = textDecoration
                 )
                 Text(
                     text = "$moduleAuthor: ${module.author}",
                     fontSize = 12.sp,
-                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.padding(bottom = 1.dp),
+                    fontWeight = FontWeight(550),
                     color = colorScheme.onSurfaceVariantSummary,
                     textDecoration = textDecoration
                 )

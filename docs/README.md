@@ -2,7 +2,7 @@
 
 A [KernelSU](https://github.com/tiann/KernelSU)-based root solution for Android devices.
 
-Upstream: [77bfbfbbf901b3ee038ad463f59e34d0ff107bdc](https://github.com/tiann/KernelSU/commit/77bfbfbbf901b3ee038ad463f59e34d0ff107bdc)
+Upstream: [4b0513812623530d7ecd050a09fb00f2d6ffaf1b](https://github.com/tiann/KernelSU/commit/4b0513812623530d7ecd050a09fb00f2d6ffaf1b)
 
 **Experimental. Use at your own risk. (Low frequency maintenance)**
 

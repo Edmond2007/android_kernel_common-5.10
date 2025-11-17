@@ -328,14 +328,14 @@ private fun TemplateItem(
                     Text(
                         text = "LOCAL",
                         color = colorScheme.onTertiaryContainer,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight(750),
                         style = MiuixTheme.textStyles.footnote1
                     )
                 } else {
                     Text(
                         text = "REMOTE",
                         color = colorScheme.onSurfaceSecondary,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight(750),
                         style = MiuixTheme.textStyles.footnote1
                     )
                 }
@@ -345,8 +345,8 @@ private fun TemplateItem(
                 text = "${template.id}${if (template.author.isEmpty()) "" else " by @${template.author}"}",
                 modifier = Modifier.padding(top = 1.dp),
                 fontSize = 12.sp,
+                fontWeight = FontWeight(550),
                 color = colorScheme.onSurfaceVariantSummary,
-                fontWeight = FontWeight.Medium,
             )
 
             Spacer(modifier = Modifier.height(4.dp))
@@ -392,10 +392,11 @@ private fun InfoChip(icon: ImageVector, text: String) {
             modifier = Modifier.size(14.dp),
             tint = colorScheme.onSurfaceSecondary.copy(alpha = 0.8f)
         )
-        Spacer(modifier = Modifier.width(6.dp))
         Text(
+            modifier = Modifier.padding(start = 4.dp),
             text = text,
             fontSize = 12.sp,
+            fontWeight = FontWeight(550),
             color = colorScheme.onSurfaceSecondary
         )
     }
