@@ -110,6 +110,7 @@ jobs:
           path: out/arch/arm64/boot/Image.gz
           retention-days: 14
 
+      - name: Upload dtb as artifact
         if: success()
         uses: actions/upload-artifact@v4
         with:
